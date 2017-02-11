@@ -326,10 +326,10 @@ classdef queryHorizon
             self.originSrc=src;
             % get target name 
              if ~isempty(regexp(src,'Multiple major-bodies match string|No matches found','ONCE'))
-                error('Ambiguous target name; check URL: %s' ,self.url);
+                error('Ambiguous target name; \n Use ID# to make unique selection.: \n %s\n',src);
             end
             if ~isempty(regexp(src,'Matching small-bodies|No matches found','ONCE'))
-                error('Ambiguous target name; check URL: %s' ,self.url);
+                error('Ambiguous target name; \n Use ID# to make unique selection.: \n %s\n',src);
             end
             if ~isempty(regexp(src,'ERROR','ONCE'))
                 error('%s' ,src);
@@ -351,8 +351,12 @@ classdef queryHorizon
             % get ephemrides
             pos4=regexp(src,'\$\$SOE\n','ONCE','end');
             pos5=regexp(src,'\n\$\$EOE','ONCE','start');
-            pattern=['%s%f%s%s',repmat('%f',[1,6]),'%s%s',repmat('%f',[1,11]),'%s',repmat('%f',[1,9])];
-            C=textscan(src(pos4:pos5),pattern,'Delimiter',',');
+            pattern=['%s%f%s%s',repmat('%f',[1,19]),'%s',repmat('%f',[1,9])];
+            try 
+            C=textscan(src(pos4:pos5),pattern,'Delimiter',',','TreatAsEmpty',{'n.a.'});
+            catch 
+                error('check source file %s\n',src);
+            end
             self.data=table(C{1:end},'VariableNames',fieldnames);
            
         end
