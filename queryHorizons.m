@@ -14,15 +14,15 @@ classdef queryHorizons
     
     methods % constructor 
         function self = queryHorizons(targetname)
-            %{
-        Initialize query to Horizons
-        Parameters
-        ----------
-        targetname         : str
-           HORIZONS-readable target number, name, or designation
-        Results
-        self
-            %}
+%            
+%         Initialize query to Horizons
+%         Parameters
+%         ----------
+%         targetname         : str
+%            HORIZONS-readable target number, name, or designation
+%         Results
+%         self
+%            
             self.targetname = targetname;
             self.start_epoch    = nan;
             self.stop_epoch     = nan;
@@ -34,46 +34,46 @@ classdef queryHorizons
     end
     methods % set epochs
         function self=set_epochrange(self,start_epoch, stop_epoch, step_size)
-        %{    
-        Set a range of epochs, all times are UT
-        Parameters
-        ----------
-        start_epoch        :    str
-           start epoch of the format 'YYYY-MM-DD [HH-MM-SS]'
-        stop_epoch         :    str
-           final epoch of the format 'YYYY-MM-DD [HH-MM-SS]' 
-        step_size          :    str
-           epoch step size, e.g., '1d' for 1 day, '10m' for 10 minutes...
-        Returns
-        -------
-        None
-        
-        Examples
-        --------
-        >>> ceres =queryHorizon('Ceres')
-        >>> ceres=ceres.set_epochrange('2016-02-26', '2016-10-25', '1d')
-        Note that dates are mandatory; if no time is given, midnight is assumed.
-        %}
+%          
+%         Set a range of epochs, all times are UT
+%         Parameters
+%         ----------
+%         start_epoch        :    str
+%            start epoch of the format 'YYYY-MM-DD [HH-MM-SS]'
+%         stop_epoch         :    str
+%            final epoch of the format 'YYYY-MM-DD [HH-MM-SS]' 
+%         step_size          :    str
+%            epoch step size, e.g., '1d' for 1 day, '10m' for 10 minutes...
+%         Returns
+%         -------
+%         None
+%         
+%         Examples
+%         --------
+%         >>> ceres =queryHorizon('Ceres')
+%         >>> ceres=ceres.set_epochrange('2016-02-26', '2016-10-25', '1d')
+%         Note that dates are mandatory; if no time is given, midnight is assumed.
+%         
         self.start_epoch = start_epoch;
         self.stop_epoch  = stop_epoch;
         self.step_size   = step_size;
         end
         function self=set_discreteepochs(self,discreteepochs)
-        %{
-        Set a list of discrete epochs, epochs have to be given as Julian
-        Dates
-        Parameters
-        ----------
-        discreteepochs    : list
-        Returns
-        -------
-        None
-        
-        Examples
-        --------
-        >>> ceres = queryHorizon('Ceres')
-        >>> ceres.set_discreteepochs([2457446.177083, 2457446.182343])
-        %}
+%         
+%         Set a list of discrete epochs, epochs have to be given as Julian
+%         Dates
+%         Parameters
+%         ----------
+%         discreteepochs    : list
+%         Returns
+%         -------
+%         None
+%         
+%         Examples
+%         --------
+%         >>> ceres = queryHorizon('Ceres')
+%         >>> ceres.set_discreteepochs([2457446.177083, 2457446.182343])
+%         
         self.discreteepochs = discreteepochs;
         end
     end
@@ -130,19 +130,19 @@ classdef queryHorizons
             tt=sprintf('<callhorizons.query object: %s>',self.targetname);
         end
         function tt=getitem(self,key,k)
-            %{
-            provides access to query data
-
-        Parameters
-        ----------
-        key          : str/int
-           epoch index or property key
-
-        Returns
-        -------
-        query data according to key
-
-            %}
+%             
+%             provides access to query data
+% 
+%         Parameters
+%         ----------
+%         key          : str/int
+%            epoch index or property key
+% 
+%         Returns
+%         -------
+%         query data according to key
+% 
+%            
             
             if isempty(self.data)
                 disp('CALLHORIZONS ERROR: run get_ephemerides or get_elements first');
@@ -160,108 +160,108 @@ classdef queryHorizons
     end
     methods
         function self=get_ephemerides(self,observatory_code,airmass_lessthan,solar_elongation,skip_daylight)
-             %{
-        Call JPL HORIZONS website to obtain ephemerides based on the
-        provided targetname, epochs, and observatory_code. For a list
-        of valid observatory codes, refer to
-        http://minorplanetcenter.net/iau/lists/ObsCodesF.html
-        
-        Parameters
-        ----------
-        observatory_code     : str/int
-           observer's location code according to Minor Planet Center
-        airmass_lessthan     : float
-           maximum airmass (optional, default: 99)
-        solar_elongation     : tuple
-           permissible solar elongation range (optional, deg)
-        skip_daylight        : boolean
-           crop daylight epoch during query (optional)
-        
-        Examples
-        --------
-        >>> ceres = queryHorizons('Ceres')
-        >>> ceres=ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
-        >>> ceres=ceres.get_ephemerides('O44');
-        >>> ceres.getitem('RA',1)
-        >>> ceres.data(:,'RA')
-        >>> ceres.data{:,'RA'}
-
-        The queried properties and their definitions are:
-           +------------------+-----------------------------------------------+
-           | Property         | Definition                                    |
-           +==================+===============================================+
-           |official_name     | official number, name, designation [string]   |
-           +------------------+-----------------------------------------------+
-           | H                | absolute magnitude in V band (float, mag)     |
-           +------------------+-----------------------------------------------+
-           | G                | photometric slope parameter (float)           |
-           +------------------+-----------------------------------------------+
-           | datetime         | epoch date and time (str, YYYY-MM-DD HH:MM:SS)|
-           +------------------+-----------------------------------------------+
-           | datetime_jd      | epoch Julian Date (float)                     |
-           +------------------+-----------------------------------------------+
-           | solar_presence   | information on Sun's presence (str)           |
-           +------------------+-----------------------------------------------+
-           | lunar_presence   | information on Moon's presence (str)          |
-           +------------------+-----------------------------------------------+
-           | RA               | target RA (float, J2000.0)                    |
-           +------------------+-----------------------------------------------+
-           | DEC              | target DEC (float, J2000.0)                   |
-           +------------------+-----------------------------------------------+
-           | RA_rate          | target rate RA (float, arcsec/s)              |
-           +------------------+-----------------------------------------------+
-           | DEC_rate         | target RA (float, arcsec/s, includes cos(DEC))|
-           +------------------+-----------------------------------------------+
-           | AZ               | Azimuth meas East(90) of North(0) (float, deg)|
-           +------------------+-----------------------------------------------+
-           | EL               | Elevation (float, deg)                        |
-           +------------------+-----------------------------------------------+
-           | airmass          | target optical airmass (float)                |
-           +------------------+-----------------------------------------------+
-           | magextinct       | V-mag extinction due airmass (float, mag)     |
-           +------------------+-----------------------------------------------+
-           | V                | V magnitude (comets: total mag) (float, mag)  |
-           +------------------+-----------------------------------------------+
-           | illumination     | fraction of illuminated disk (float)          |
-           +------------------+-----------------------------------------------+
-           | EclLon           | heliocentr. ecl. long. (float, deg, J2000.0)  |
-           +------------------+-----------------------------------------------+
-           | EclLat           | heliocentr. ecl. lat. (float, deg, J2000.0)   |
-           +------------------+-----------------------------------------------+
-           | ObsEclLon        | obscentr. ecl. long. (float, deg, J2000.0)    |
-           +------------------+-----------------------------------------------+
-           | ObsEclLat        | obscentr. ecl. lat. (float, deg, J2000.0)     |
-           +------------------+-----------------------------------------------+
-           | r                | heliocentric distance (float, au)             |
-           +------------------+-----------------------------------------------+
-           | r_rate           | heliocentric radial rate  (float, km/s)       |
-           +------------------+-----------------------------------------------+
-           | delta            | distance from the observer (float, au)        |
-           +------------------+-----------------------------------------------+
-           | delta_rate       | obs-centric radial rate (float, km/s)         |
-           +------------------+-----------------------------------------------+
-           | lighttime        | one-way light time (float, s)                 |
-           +------------------+-----------------------------------------------+
-           | elong            | solar elongation (float, deg)                 |
-           +------------------+-----------------------------------------------+
-           | elongFlag        | app. position relative to Sun (str)           |
-           +------------------+-----------------------------------------------+
-           | alpha            | solar phase angle (float, deg)                |
-           +------------------+-----------------------------------------------+
-           | sunTargetPA      | PA of Sun->target vector (float, deg, EoN)    |
-           +------------------+-----------------------------------------------+
-           | velocityPA       | PA of velocity vector (float, deg, EoN)       |
-           +------------------+-----------------------------------------------+
-           | GlxLon           | galactic longitude (float, deg)               |
-           +------------------+-----------------------------------------------+
-           | GlxLat           | galactic latitude  (float, deg)               |
-           +------------------+-----------------------------------------------+
-           | RA_3sigma        | 3sigma pos. unc. in RA (float, arcsec)        |
-           +------------------+-----------------------------------------------+
-           | DEC_3sigma       | 3sigma pos. unc. in DEC (float, arcsec)       |
-           +------------------+-----------------------------------------------+
-
-            %}
+%              
+%         Call JPL HORIZONS website to obtain ephemerides based on the
+%         provided targetname, epochs, and observatory_code. For a list
+%         of valid observatory codes, refer to
+%         http://minorplanetcenter.net/iau/lists/ObsCodesF.html
+%         
+%         Parameters
+%         ----------
+%         observatory_code     : str/int
+%            observer's location code according to Minor Planet Center
+%         airmass_lessthan     : float
+%            maximum airmass (optional, default: 99)
+%         solar_elongation     : tuple
+%            permissible solar elongation range (optional, deg)
+%         skip_daylight        : boolean
+%            crop daylight epoch during query (optional)
+%         
+%         Examples
+%         --------
+%         >>> ceres = queryHorizons('Ceres')
+%         >>> ceres=ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
+%         >>> ceres=ceres.get_ephemerides('O44');
+%         >>> ceres.getitem('RA',1)
+%         >>> ceres.data(:,'RA')
+%         >>> ceres.data{:,'RA'}
+% 
+%         The queried properties and their definitions are:
+%            +------------------+-----------------------------------------------+
+%            | Property         | Definition                                    |
+%            +==================+===============================================+
+%            |official_name     | official number, name, designation [string]   |
+%            +------------------+-----------------------------------------------+
+%            | H                | absolute magnitude in V band (float, mag)     |
+%            +------------------+-----------------------------------------------+
+%            | G                | photometric slope parameter (float)           |
+%            +------------------+-----------------------------------------------+
+%            | datetime         | epoch date and time (str, YYYY-MM-DD HH:MM:SS)|
+%            +------------------+-----------------------------------------------+
+%            | datetime_jd      | epoch Julian Date (float)                     |
+%            +------------------+-----------------------------------------------+
+%            | solar_presence   | information on Sun's presence (str)           |
+%            +------------------+-----------------------------------------------+
+%            | lunar_presence   | information on Moon's presence (str)          |
+%            +------------------+-----------------------------------------------+
+%            | RA               | target RA (float, J2000.0)                    |
+%            +------------------+-----------------------------------------------+
+%            | DEC              | target DEC (float, J2000.0)                   |
+%            +------------------+-----------------------------------------------+
+%            | RA_rate          | target rate RA (float, arcsec/s)              |
+%            +------------------+-----------------------------------------------+
+%            | DEC_rate         | target RA (float, arcsec/s, includes cos(DEC))|
+%            +------------------+-----------------------------------------------+
+%            | AZ               | Azimuth meas East(90) of North(0) (float, deg)|
+%            +------------------+-----------------------------------------------+
+%            | EL               | Elevation (float, deg)                        |
+%            +------------------+-----------------------------------------------+
+%            | airmass          | target optical airmass (float)                |
+%            +------------------+-----------------------------------------------+
+%            | magextinct       | V-mag extinction due airmass (float, mag)     |
+%            +------------------+-----------------------------------------------+
+%            | V                | V magnitude (comets: total mag) (float, mag)  |
+%            +------------------+-----------------------------------------------+
+%            | illumination     | fraction of illuminated disk (float)          |
+%            +------------------+-----------------------------------------------+
+%            | EclLon           | heliocentr. ecl. long. (float, deg, J2000.0)  |
+%            +------------------+-----------------------------------------------+
+%            | EclLat           | heliocentr. ecl. lat. (float, deg, J2000.0)   |
+%            +------------------+-----------------------------------------------+
+%            | ObsEclLon        | obscentr. ecl. long. (float, deg, J2000.0)    |
+%            +------------------+-----------------------------------------------+
+%            | ObsEclLat        | obscentr. ecl. lat. (float, deg, J2000.0)     |
+%            +------------------+-----------------------------------------------+
+%            | r                | heliocentric distance (float, au)             |
+%            +------------------+-----------------------------------------------+
+%            | r_rate           | heliocentric radial rate  (float, km/s)       |
+%            +------------------+-----------------------------------------------+
+%            | delta            | distance from the observer (float, au)        |
+%            +------------------+-----------------------------------------------+
+%            | delta_rate       | obs-centric radial rate (float, km/s)         |
+%            +------------------+-----------------------------------------------+
+%            | lighttime        | one-way light time (float, s)                 |
+%            +------------------+-----------------------------------------------+
+%            | elong            | solar elongation (float, deg)                 |
+%            +------------------+-----------------------------------------------+
+%            | elongFlag        | app. position relative to Sun (str)           |
+%            +------------------+-----------------------------------------------+
+%            | alpha            | solar phase angle (float, deg)                |
+%            +------------------+-----------------------------------------------+
+%            | sunTargetPA      | PA of Sun->target vector (float, deg, EoN)    |
+%            +------------------+-----------------------------------------------+
+%            | velocityPA       | PA of velocity vector (float, deg, EoN)       |
+%            +------------------+-----------------------------------------------+
+%            | GlxLon           | galactic longitude (float, deg)               |
+%            +------------------+-----------------------------------------------+
+%            | GlxLat           | galactic latitude  (float, deg)               |
+%            +------------------+-----------------------------------------------+
+%            | RA_3sigma        | 3sigma pos. unc. in RA (float, arcsec)        |
+%            +------------------+-----------------------------------------------+
+%            | DEC_3sigma       | 3sigma pos. unc. in DEC (float, arcsec)       |
+%            +------------------+-----------------------------------------------+
+% 
+%             
             switch nargin
                 case 1
                     observatory_code=399;% earth center
@@ -365,62 +365,62 @@ classdef queryHorizons
            
         end
         function self=get_elements(self,center)
-         %{
-         Call JPL HORIZONS website to obtain orbital elements based on the
-        provided targetname, epochs, and center code. For valid center
-        codes, please refer to http://ssd.jpl.nasa.gov/horizons.cgi
-        Parameters
-        ----------
-        center        :  str
-           center body (default: 500@10 = Sun)
-        Results
-        -------
-        number of epochs queried
-        
-        Examples
-        --------
-        >>> ceres = queryHorizons('Ceres');
-        >>> ceres=ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
-        >>> ceres=ceres.get_elements('SSB');
-        >>> ceres=ceres.get_elements('500@sun')
-        The queried properties and their definitions are:
-           +------------------+-----------------------------------------------+
-           | Property         | Definition                                    |
-           +==================+===============================================+
-           | targetname       | official number, name, designation [string]   |
-           +------------------+-----------------------------------------------+
-           | H                | absolute magnitude in V band (float, mag)     |
-           +------------------+-----------------------------------------------+
-           | G                | photometric slope parameter (float)           |
-           +------------------+-----------------------------------------------+
-           | datetime_jd      | julian Day Number, TDB (float)                |
-           +------------------+-----------------------------------------------+
-           | e                | eccentricity (float)                          |
-           +------------------+-----------------------------------------------+
-           | p                | periapsis distance (float, au)                |
-           +------------------+-----------------------------------------------+
-           | e                | inclination (float, deg)                      |
-           +------------------+-----------------------------------------------+
-           | node             | longitude of Asc. Node (float, deg)           |
-           +------------------+-----------------------------------------------+
-           | w                | argument of the perifocus (float, deg)        |
-           +------------------+-----------------------------------------------+
-           | Tp               | time of periapsis (float, Julian Date)        |
-           +------------------+-----------------------------------------------+
-           | n                | mean motion (float,deg/sec)                   |
-           +------------------+-----------------------------------------------+
-           | M                | mean anomaly (float, deg)                     |
-           +------------------+-----------------------------------------------+
-           | trueanomaly      | true anomaly (float, deg)                     |
-           +------------------+-----------------------------------------------+
-           | a                | semi-major axis (float, au)                   |
-           +------------------+-----------------------------------------------+
-           | AD               | apoapsis distance (float, au)                 |
-           +------------------+-----------------------------------------------+
-           | period           | orbital period (float, Earth yr)              |
-           +------------------+-----------------------------------------------+
-        
-        %}
+%         
+%          Call JPL HORIZONS website to obtain orbital elements based on the
+%         provided targetname, epochs, and center code. For valid center
+%         codes, please refer to http://ssd.jpl.nasa.gov/horizons.cgi
+%         Parameters
+%         ----------
+%         center        :  str
+%            center body (default: 500@10 = Sun)
+%         Results
+%         -------
+%         number of epochs queried
+%         
+%         Examples
+%         --------
+%         >>> ceres = queryHorizons('Ceres');
+%         >>> ceres=ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
+%         >>> ceres=ceres.get_elements('SSB');
+%         >>> ceres=ceres.get_elements('500@sun')
+%         The queried properties and their definitions are:
+%            +------------------+-----------------------------------------------+
+%            | Property         | Definition                                    |
+%            +==================+===============================================+
+%            | targetname       | official number, name, designation [string]   |
+%            +------------------+-----------------------------------------------+
+%            | H                | absolute magnitude in V band (float, mag)     |
+%            +------------------+-----------------------------------------------+
+%            | G                | photometric slope parameter (float)           |
+%            +------------------+-----------------------------------------------+
+%            | datetime_jd      | julian Day Number, TDB (float)                |
+%            +------------------+-----------------------------------------------+
+%            | e                | eccentricity (float)                          |
+%            +------------------+-----------------------------------------------+
+%            | p                | periapsis distance (float, au)                |
+%            +------------------+-----------------------------------------------+
+%            | e                | inclination (float, deg)                      |
+%            +------------------+-----------------------------------------------+
+%            | node             | longitude of Asc. Node (float, deg)           |
+%            +------------------+-----------------------------------------------+
+%            | w                | argument of the perifocus (float, deg)        |
+%            +------------------+-----------------------------------------------+
+%            | Tp               | time of periapsis (float, Julian Date)        |
+%            +------------------+-----------------------------------------------+
+%            | n                | mean motion (float,deg/sec)                   |
+%            +------------------+-----------------------------------------------+
+%            | M                | mean anomaly (float, deg)                     |
+%            +------------------+-----------------------------------------------+
+%            | trueanomaly      | true anomaly (float, deg)                     |
+%            +------------------+-----------------------------------------------+
+%            | a                | semi-major axis (float, au)                   |
+%            +------------------+-----------------------------------------------+
+%            | AD               | apoapsis distance (float, au)                 |
+%            +------------------+-----------------------------------------------+
+%            | period           | orbital period (float, Earth yr)              |
+%            +------------------+-----------------------------------------------+
+%         
+%         
             switch nargin
                 case 1
                     center='500@10';
