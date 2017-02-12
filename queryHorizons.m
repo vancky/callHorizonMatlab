@@ -13,7 +13,7 @@ classdef queryHorizons
     end
     
     methods % constructor 
-        function self = queryHorizon(targetname)
+        function self = queryHorizons(targetname)
             %{
         Initialize query to Horizons
         Parameters
@@ -179,9 +179,9 @@ classdef queryHorizons
         
         Examples
         --------
-        >>> ceres = queryHorizon('Ceres')
+        >>> ceres = queryHorizons('Ceres')
         >>> ceres=ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
-        >>> cerer=ceres.get_ephemerides('O44');
+        >>> ceres=ceres.get_ephemerides('O44');
         >>> ceres.getitem('RA',1)
         >>> ceres.data(:,'RA')
         >>> ceres.data{:,'RA'}
@@ -311,7 +311,7 @@ classdef queryHorizons
             end
             self.url=tmpurl;
          %   disp(self.url);
-            src=urlread(self.url);
+            src=webread(self.url);
            
             % get website source and resolve it into data
             % get H and G
@@ -332,7 +332,9 @@ classdef queryHorizons
                 error('Ambiguous target name; \n Use ID# to make unique selection.: \n %s\n',src);
             end
             if ~isempty(regexp(src,'ERROR','ONCE'))
-                error('%s' ,src);
+                disp('check URL and source file')
+                disp(tmpurl);
+                error('%s',src);
             end
             pos1=regexp(src,'Target body name: ','end','ONCE')+1;
             pos2=pos1+regexp(src(pos1:pos1+38),'  ','start','ONCE')-2;
@@ -355,7 +357,9 @@ classdef queryHorizons
             try 
             C=textscan(src(pos4:pos5),pattern,'Delimiter',',','TreatAsEmpty',{'n.a.'});
             catch 
-                error('check source file %s\n',src);
+                disp('check URL and source file')
+                disp(tmpurl);
+                error(' %s\n',src);
             end
             self.data=table(C{1:end},'VariableNames',fieldnames);
            
@@ -375,9 +379,10 @@ classdef queryHorizons
         
         Examples
         --------
-        >>> ceres = callhorizons.query('Ceres')
-        >>> ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
-        >>> print (ceres.get_elements(), 'epochs queried')
+        >>> ceres = queryHorizons('Ceres');
+        >>> ceres=ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
+        >>> ceres=ceres.get_elements('SSB');
+        >>> ceres=ceres.get_elements('500@sun')
         The queried properties and their definitions are:
            +------------------+-----------------------------------------------+
            | Property         | Definition                                    |
@@ -388,30 +393,33 @@ classdef queryHorizons
            +------------------+-----------------------------------------------+
            | G                | photometric slope parameter (float)           |
            +------------------+-----------------------------------------------+
-           | datetime_jd      | epoch Julian Date (float)                     |
+           | datetime_jd      | julian Day Number, TDB (float)                |
            +------------------+-----------------------------------------------+
            | e                | eccentricity (float)                          |
            +------------------+-----------------------------------------------+
            | p                | periapsis distance (float, au)                |
            +------------------+-----------------------------------------------+
-           | a                | semi-major axis (float, au)                   |
-           +------------------+-----------------------------------------------+
-           | incl             | inclination (float, deg)                      |
+           | e                | inclination (float, deg)                      |
            +------------------+-----------------------------------------------+
            | node             | longitude of Asc. Node (float, deg)           |
            +------------------+-----------------------------------------------+
-           | argper           | argument of the perifocus (float, deg)        |
+           | w                | argument of the perifocus (float, deg)        |
            +------------------+-----------------------------------------------+
            | Tp               | time of periapsis (float, Julian Date)        |
            +------------------+-----------------------------------------------+
-           | meananomaly      | mean anomaly (float, deg)                     |
+           | n                | mean motion (float,deg/sec)                   |
+           +------------------+-----------------------------------------------+
+           | M                | mean anomaly (float, deg)                     |
            +------------------+-----------------------------------------------+
            | trueanomaly      | true anomaly (float, deg)                     |
            +------------------+-----------------------------------------------+
+           | a                | semi-major axis (float, au)                   |
+           +------------------+-----------------------------------------------+
+           | AD               | apoapsis distance (float, au)                 |
+           +------------------+-----------------------------------------------+
            | period           | orbital period (float, Earth yr)              |
            +------------------+-----------------------------------------------+
-           | Q                | apoapsis distance (float, au)                 |
-           +------------------+-----------------------------------------------+
+        
         %}
             switch nargin
                 case 1
@@ -420,10 +428,59 @@ classdef queryHorizons
             objectname=self.targetname;
             tmpurl=strcat('http://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=l',...
                 '&TABLE_TYPE=''ELEMENTS''','&CSV_FORMAT=''YES''',...
-                sprintf('&CENTER=''%s''',center),'&OUT_UNIT=''AU-D''',...
-                '&REF_PLANE=''ECLIPTIC;''','REF_SYSTEM=''J2000''',...
+                sprintf('&CENTER=''%s''',center),'&OUT_UNITS=''AU-D''',...
+                '&REF_PLANE=''ECLIPTIC''','REF_SYSTEM=''J2000''',...
                 '&TP_TYPE=''ABSOLUTE''','&ELEM_LABELS=''YES''',...
-                '&OBJ_DATA=''YES''');
+                '&OBJ_DATA=''YES''',sprintf('&COMMAND=''%s''',objectname));
+            if ~isnan(self.discreteepochs)
+                tmpurl=strcat(tmpurl,'&TLIST=');
+                for k=1:length(self.discreteepochs)
+                    tmpurl=strcat(tmpurl,sprintf('''%f''',self.discreteepochs(k)));
+                end
+            elseif ~(isempty(self.start_epoch)||isempty(self.stop_epoch)||isempty(self.step_size))
+                tmpurl=strcat(tmpurl,sprintf('&START_TIME=''%s''&STOP_TIME=''%s''&STEP_SIZE=''%s''',...
+                    self.start_epoch,self.stop_epoch,self.step_size));
+            else
+                disp(tmpurl);
+                error('no epoch information');
+            end
+            self.url=tmpurl;
+            %   disp(self.url);
+            src=webread(self.url);
+            if isempty(regexp(src,' H= ','ONCE','start'))
+                H=nan;G=nan;
+            else
+                H=str2double(src(regexp(src,' H= ','end','ONCE'):regexp(src,' G= ','start','ONCE')));
+                G=str2double(src(regexp(src,' G= ','end','ONCE'):regexp(src,' B-V= ','start','ONCE')));
+            end
+            self.physical.H=H;
+            self.physical.G=G;
+            self.originSrc=src;
+            % get target name
+            if ~isempty(regexp(src,'Multiple major-bodies match string|No matches found','ONCE'))
+                error('Ambiguous target name; \n Use ID# to make unique selection.: \n %s\n',src);
+            end
+            if ~isempty(regexp(src,'Matching small-bodies|No matches found','ONCE'))
+                error('Ambiguous target name; \n Use ID# to make unique selection.: \n %s\n',src);
+            end
+            if ~isempty(regexp(src,'ERROR','ONCE'))
+                disp(tmpurl);
+                error('\n%s' ,src);
+            end
+            pos1=regexp(src,'Target body name: ','end','ONCE')+1;
+            pos2=pos1+regexp(src(pos1:pos1+38),'  ','start','ONCE')-2;
+            self.official_name=src(pos1:pos2);
+            fieldnames={'datetime_jd','datetime','e','p',...
+                'i','node','w','Tp','n','M','trueanomaly','a','AD','period'};
+            pos4=regexp(src,'\$\$SOE\n','ONCE','end');
+            pos5=regexp(src,'\n\$\$EOE','ONCE','start');
+            pattern=['%f%s',repmat('%f',[1,12])];
+            try
+                C=textscan(src(pos4:pos5),pattern,'Delimiter',',','TreatAsEmpty',{'n.a.'});
+            catch
+                error('check source file %s\n',src);
+            end
+            self.data=table(C{1:end},'VariableNames',fieldnames);
         end
     end
     
