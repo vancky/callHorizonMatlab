@@ -1,4 +1,4 @@
-classdef queryHorizon
+classdef queryHorizons
     properties
         targetname
         official_name
@@ -359,6 +359,71 @@ classdef queryHorizon
             end
             self.data=table(C{1:end},'VariableNames',fieldnames);
            
+        end
+        function self=get_elements(self,center)
+         %{
+         Call JPL HORIZONS website to obtain orbital elements based on the
+        provided targetname, epochs, and center code. For valid center
+        codes, please refer to http://ssd.jpl.nasa.gov/horizons.cgi
+        Parameters
+        ----------
+        center        :  str
+           center body (default: 500@10 = Sun)
+        Results
+        -------
+        number of epochs queried
+        
+        Examples
+        --------
+        >>> ceres = callhorizons.query('Ceres')
+        >>> ceres.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h')
+        >>> print (ceres.get_elements(), 'epochs queried')
+        The queried properties and their definitions are:
+           +------------------+-----------------------------------------------+
+           | Property         | Definition                                    |
+           +==================+===============================================+
+           | targetname       | official number, name, designation [string]   |
+           +------------------+-----------------------------------------------+
+           | H                | absolute magnitude in V band (float, mag)     |
+           +------------------+-----------------------------------------------+
+           | G                | photometric slope parameter (float)           |
+           +------------------+-----------------------------------------------+
+           | datetime_jd      | epoch Julian Date (float)                     |
+           +------------------+-----------------------------------------------+
+           | e                | eccentricity (float)                          |
+           +------------------+-----------------------------------------------+
+           | p                | periapsis distance (float, au)                |
+           +------------------+-----------------------------------------------+
+           | a                | semi-major axis (float, au)                   |
+           +------------------+-----------------------------------------------+
+           | incl             | inclination (float, deg)                      |
+           +------------------+-----------------------------------------------+
+           | node             | longitude of Asc. Node (float, deg)           |
+           +------------------+-----------------------------------------------+
+           | argper           | argument of the perifocus (float, deg)        |
+           +------------------+-----------------------------------------------+
+           | Tp               | time of periapsis (float, Julian Date)        |
+           +------------------+-----------------------------------------------+
+           | meananomaly      | mean anomaly (float, deg)                     |
+           +------------------+-----------------------------------------------+
+           | trueanomaly      | true anomaly (float, deg)                     |
+           +------------------+-----------------------------------------------+
+           | period           | orbital period (float, Earth yr)              |
+           +------------------+-----------------------------------------------+
+           | Q                | apoapsis distance (float, au)                 |
+           +------------------+-----------------------------------------------+
+        %}
+            switch nargin
+                case 1
+                    center='500@10';
+            end
+            objectname=self.targetname;
+            tmpurl=strcat('http://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=l',...
+                '&TABLE_TYPE=''ELEMENTS''','&CSV_FORMAT=''YES''',...
+                sprintf('&CENTER=''%s''',center),'&OUT_UNIT=''AU-D''',...
+                '&REF_PLANE=''ECLIPTIC;''','REF_SYSTEM=''J2000''',...
+                '&TP_TYPE=''ABSOLUTE''','&ELEM_LABELS=''YES''',...
+                '&OBJ_DATA=''YES''');
         end
     end
     
