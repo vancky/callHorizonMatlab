@@ -275,7 +275,7 @@ classdef queryHorizons
 %             
             switch nargin
                 case 1
-                    observatory_code=399;% earth center
+                    observatory_code='O44';% a default station
                     airmass_lessthan=99;
                     solar_elongation=[0,180];
                     skip_daylight=0;
@@ -441,7 +441,7 @@ classdef queryHorizons
 %            +------------------+-----------------------------------------------+    
             switch nargin
                 case 1
-                    center='500@10';
+                    center='500@10';% default center
             end
             objectname=self.targetname;
             tmpurl=strcat('http://ssd.jpl.nasa.gov/horizons_batch.cgi?batch=l',...
