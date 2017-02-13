@@ -28,9 +28,21 @@ classdef queryTest < matlab.unittest.TestCase
             test.verifyEqual(target.getitem('RA_3sigma',1), 0.058);
             test.verifyEqual(target.getitem('DEC_3sigma',1), 0.050);
         end
-%          function asteroid_elements(test)
-%              
-%          end
+          function asteroid_elements(test)
+            target = queryHorizons('50278:');
+            target=target.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h') ;
+            target=target.get_elements('@sun');
+            test.verifyEqual(target.getitem('e',1),3.745046914535793e-02);
+            test.verifyEqual(target.getitem('i',1),1.265558218548466);
+            test.verifyEqual(target.getitem('M',1),4.726148747089238e+01);              
+          end
+           function asteroid_vectors(test)
+            target = queryHorizons('499');
+            target=target.set_discreteepochs([2455562.500766 2455563.500766 2455564.500766 2455565.500766 2455566.500766 2455567.500766]);
+            target=target.get_vectors('@SSB');
+            test.verifyEqual(target.getitem('y',3),-1.154468372839617);
+            test.verifyEqual(target.getitem('RR',3),-8.889653366064838e-04);          
+          end
     end
     
 end
