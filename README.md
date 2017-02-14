@@ -11,6 +11,12 @@ runtests('queryTest');% run the test
 ```
 #### initialization for discrete epochs ,only supply for the jd or mjd format,you can use [cspice](http://git.oschina.net/vancky/mice) to do more time transform.
 
+'''
+
+s=fuck
+
+''' 
+
 ```matlab
 target=queryHorizons('499');% for Mars 
 target=target.set_discreteepochs([2457446.177083, 2457446.182343,2457448.182343]);
