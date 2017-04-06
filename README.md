@@ -49,3 +49,5 @@ target.fields % show all items
 - get_vectors ,default center is 0(Solar System barycenter,SSB), default reference frame is J2000,default reference plane is earth mean equator and equinox .
    Any suggests or comments ,contact vanckyli[at]gmail.com ! 
    Have fun!
+- when run test file failed ,you may set a break point in the last lines of get_ephemerides() or get_elements() or get_vectors() functions, to the 
+print src(pos4:pos5) and  comparison with self.data table !Sometimes , it is failed for  JPL updating it's ephemeris !
