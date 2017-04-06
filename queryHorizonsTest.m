@@ -1,4 +1,4 @@
-classdef queryTest < matlab.unittest.TestCase    
+classdef queryHorizonsTest < matlab.unittest.TestCase    
     properties (TestParameter)
     end
     methods (Test)
@@ -6,7 +6,7 @@ classdef queryTest < matlab.unittest.TestCase
             target = queryHorizons('Ceres');
             target=target.set_discreteepochs([2451544.500000]);
             target=target.get_ephemerides('O44');
-             test.verifyEqual(target.getitem('datetime',1),{'2000-Jan-01 00:00:00.000'});
+            test.verifyEqual(target.getitem('datetime',1),{'2000-Jan-01 00:00:00.000'});
             test.verifyEqual(target.getitem('datetime_jd',1),2451544.500000);
             test.verifyEqual(target.getitem('solar_presence',1),{'C'});
             test.verifyEqual(target.getitem('lunar_presence',1),{'m'});
@@ -32,9 +32,9 @@ classdef queryTest < matlab.unittest.TestCase
             target = queryHorizons('50278:');
             target=target.set_epochrange('2016-02-23 00:00', '2016-02-24 00:00', '1h') ;
             target=target.get_elements('@sun');
-            test.verifyEqual(target.getitem('e',1),3.745046914535793e-02);
-            test.verifyEqual(target.getitem('i',1),1.265558218548466);
-            test.verifyEqual(target.getitem('M',1),4.726148747089238e+01);              
+            test.verifyEqual(target.getitem('e',1),3.745051389615106E-02);
+            test.verifyEqual(target.getitem('i',1),1.265560484120587);
+            test.verifyEqual(target.getitem('M',1),47.261414651742680);              
           end
            function asteroid_vectors(test)
             target = queryHorizons('499');

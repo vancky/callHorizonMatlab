@@ -3,10 +3,9 @@
 colName={'datetime' ,'datetime_jd','solar_presence','lunar_presence',...
  'RA','DEC','RA_rate','DEC_rate', 'AZ' ,'EL','V','RA_3sigma','DEC_3sigma' };
 %%
-testA=[1 265369 11 24 34] ;   
-%testA=C.perturbed_Id;
+testA=[1 265369 11 24 34] ;   % asteroid number
 for k=1:length(testA)
-tname=sprintf('%d:',testA(k));
+tname=sprintf('%d:',testA(k));% add a sign : at the end of asteroid
 target = queryHorizons(tname);
 target=target.set_discreteepochs([2457829.013889]);
 target=target.get_ephemerides('O44');
@@ -15,4 +14,4 @@ if k==1
    else
    allTable=[allTable;target.data(:,colName)];
 end
-%% 
+end

@@ -7,15 +7,11 @@ But not the same ,you have to read [horizons_doc](http://ssd.jpl.nasa.gov/?horiz
 #### download file queryHorizons.m in your matlab path
 
 ```matlab
-runtests('queryTest');% run the test
+runtests('queryHorizonsTest');% run the test
 ```
-#### initialization for discrete epochs ,only supply for the jd or mjd format,you can use [cspice](http://git.oschina.net/vancky/mice) to do more time transform.
+#### Initialization for discrete epochs ,only supply for the jd or mjd format,you can use [cspice](http://git.oschina.net/vancky/mice) to do more time transform.
 
-'''
-
-s=fuck
-
-''' 
+#### A test script is added for use of doing scripts to get ephemeris from JPL 
 
 ```matlab
 target=queryHorizons('499');% for Mars 
